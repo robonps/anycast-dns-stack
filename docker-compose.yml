@@ -39,15 +39,13 @@ services:
     container_name: dns-advertiser
     network_mode: "host"
     restart: always
+    user: root
     environment:
       - IFACE=${IFACE}
     volumes:
-      - ./bird.conf.template:/etc/bird/bird.conf.template:ro
-    # This command swaps $IFACE for the real interface name, then starts BIRD
+      - ./bird:/etc/bird/
     entrypoint: >
-      sh -c "sed -e 's/REPLACE_ME_NODE_IP/${NODE_IP}/g' \
-                 -e 's/REPLACE_ME_IFACE/${IFACE}/g' \
-                 /etc/bird/bird.conf.template > /etc/bird/bird.conf && 
+      sh -c "sed 's/REPLACE_ME_NODE_IP/'$NODE_IP'/g; s/REPLACE_ME_IFACE/'$IFACE'/g' /etc/bird/bird.conf.template > /etc/bird/bird.conf && 
              exec bird -d -c /etc/bird/bird.conf"
     depends_on:
       adguard:
