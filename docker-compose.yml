@@ -53,7 +53,7 @@ services:
 
   # Sync (Comment out on the MASTER node)
   adguard-sync:
-    image: bakito/adguardhome-sync
+    image: ghcr.io/bakito/adguardhome-sync:latest
     container_name: dns-sync
     restart: always
     environment:
