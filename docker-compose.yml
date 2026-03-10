@@ -60,7 +60,7 @@ services:
       - ORIGIN_URL=${MASTER_IP}
       - ORIGIN_USERNAME=${ADGUARD_USER}
       - ORIGIN_PASSWORD=${ADGUARD_PASS}
-      - REPLICA_URL=http://127.0.0.1:3000
+      - REPLICA_URL=http://${NODE_IP}:3000
       - REPLICA_USERNAME=${ADGUARD_USER}
       - REPLICA_PASSWORD=${ADGUARD_PASS}
       - CRON=*/1 * * * *
