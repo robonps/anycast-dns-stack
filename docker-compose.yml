@@ -45,8 +45,9 @@ services:
       - ./bird.conf.template:/etc/bird/bird.conf.template:ro
     # This command swaps $IFACE for the real interface name, then starts BIRD
     entrypoint: >
-      sh -c "sed -i 's/REPLACE_ME_NODE_IP/${NODE_IP}/g' /etc/bird/bird.conf.template && 
-             sed 's/REPLACE_ME_IFACE/${IFACE}/g' /etc/bird/bird.conf.template > /etc/bird/bird.conf && 
+      sh -c "sed -e 's/REPLACE_ME_NODE_IP/${NODE_IP}/g' \
+                 -e 's/REPLACE_ME_IFACE/${IFACE}/g' \
+                 /etc/bird/bird.conf.template > /etc/bird/bird.conf && 
              exec bird -d -c /etc/bird/bird.conf"
     depends_on:
       adguard:
