@@ -45,8 +45,7 @@ services:
       - ./bird.conf.template:/etc/bird/bird.conf.template:ro
     # This command swaps $IFACE for the real interface name, then starts BIRD
     entrypoint: >
-      sh -c "apt-get update && apt-get install -y gettext-base && 
-             envsubst < /etc/bird/bird.conf.template > /etc/bird/bird.conf && 
+      sh -c "sed 's/REPLACE_ME_IFACE/${IFACE}/g' /etc/bird/bird.conf.template > /etc/bird/bird.conf && 
              exec bird -d -c /etc/bird/bird.conf"
     depends_on:
       adguard:

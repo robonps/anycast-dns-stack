@@ -25,7 +25,7 @@ protocol ospf v2 MyAnycast {
     };
     area 0 {
         # This will be replaced by your .env IFACE value
-        interface "$IFACE" {
+        interface "REPLACE_ME_IFACE" {
             type broadcast;
             hello 1;
             dead 4;
