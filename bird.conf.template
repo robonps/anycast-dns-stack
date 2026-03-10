@@ -6,7 +6,9 @@ protocol device {
 
 # Pull the Anycast IP from the dummy interface
 protocol direct {
-    ipv4;
+    ipv4 {
+        import all;
+    };
     interface "anycast0";
 }
 
