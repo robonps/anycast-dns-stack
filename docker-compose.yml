@@ -1,0 +1,66 @@
+services:
+  network-init:
+    image: alpine
+    container_name: anycast-setup
+    privileged: true
+    network_mode: "host"
+    restart: "no"
+    command: >
+      sh -c "ip link add anycast0 type dummy || true && 
+             ip addr add ${ANYCAST_IP}/32 dev anycast0 || true && 
+             ip link set anycast0 up"
+
+  unbound:
+    image: mvance/unbound:latest
+    container_name: dns-resolver
+    restart: always
+    volumes:
+      - ./unbound:/opt/unbound/etc/unbound/
+    ports:
+      - "127.0.0.1:5335:53/udp"
+
+  adguard:
+    image: adguard/adguardhome:latest
+    container_name: dns-filter
+    restart: always
+    volumes:
+      - ./adguard/work:/opt/adguardhome/work
+      - ./adguard/conf:/opt/adguardhome/conf
+    ports:
+      - "${ANYCAST_IP}:53:53/udp"
+      - "${ANYCAST_IP}:53:53/tcp"
+      - "${NODE_IP}:80:80/tcp" 
+    depends_on:
+      - network-init
+      - unbound
+
+  bird:
+    image: pierky/bird
+    container_name: dns-advertiser
+    network_mode: "host"
+    restart: always
+    environment:
+      - IFACE=${IFACE}
+    volumes:
+      - ./bird.conf.template:/etc/bird/bird.conf.template:ro
+    # This command swaps $IFACE for the real interface name, then starts BIRD
+    entrypoint: >
+      sh -c "envsubst < /etc/bird/bird.conf.template > /etc/bird/bird.conf && 
+             exec bird -d -c /etc/bird/bird.conf"
+    depends_on:
+      adguard:
+        condition: service_started
+
+  # Sync (Comment out on the MASTER node)
+  adguard-sync:
+    image: bakito/adguardhome-sync
+    container_name: dns-sync
+    restart: always
+    environment:
+      - ORIGIN_URL=http://${MASTER_IP}:80
+      - ORIGIN_USERNAME=${ADGUARD_USER}
+      - ORIGIN_PASSWORD=${ADGUARD_PASS}
+      - REPLICA_URL=http://127.0.0.1:80
+      - REPLICA_USERNAME=${ADGUARD_USER}
+      - REPLICA_PASSWORD=${ADGUARD_PASS}
+      - CRON=*/1 * * * *

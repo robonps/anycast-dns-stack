@@ -1,0 +1,34 @@
+log syslog all;
+
+protocol device {
+    scan time 10;
+}
+
+# Pull the Anycast IP from the dummy interface
+protocol direct {
+    ipv4;
+    interface "anycast0";
+}
+
+# Export routes to the Linux Kernel
+protocol kernel {
+    ipv4 {
+        export all;
+    };
+}
+
+# The OSPF Peering with OpenWrt
+protocol ospf v2 MyAnycast {
+    ipv4 {
+        import all;
+        export all;
+    };
+    area 0 {
+        # This will be replaced by your .env IFACE value
+        interface "$IFACE" {
+            type broadcast;
+            hello 1;
+            dead 4;
+        };
+    };
+}
