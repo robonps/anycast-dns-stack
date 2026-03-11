@@ -7,5 +7,5 @@ services:
     restart: unless-stopped
     env_file: .env
     volumes:
-      - ./adguard-data:/opt/adguardhome/work
-      - ./adguard-conf:/opt/adguardhome/conf
+      - ./adguard/data:/opt/adguardhome/work
+      - ./adguard/conf:/opt/adguardhome/conf
