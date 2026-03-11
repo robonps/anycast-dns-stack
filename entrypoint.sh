@@ -7,6 +7,9 @@ ip link add anycast0 type dummy || true
 ip addr add ${ANYCAST_IP}/32 dev anycast0 || true
 ip link set anycast0 up
 
+# Defaults to true if not set, otherwise use the value of SYNC_ENABLED
+export SYNC_AUTOSTART=${SYNC_ENABLED:-true}
+
 # Inject Variables into the baked config
 # We read the .raw file and write the real bird.conf
 envsubst < /etc/bird/bird.conf.raw > /etc/bird/bird.conf
