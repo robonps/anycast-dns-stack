@@ -9,7 +9,7 @@ ip link set anycast0 up
 
 # 2. Inject Variables into the baked config
 # We read the .raw file and write the real bird.conf
-envsubst < /etc/bird/bird.conf.template > /etc/bird/bird.conf
+envsubst < /etc/bird/bird.conf.raw > /etc/bird/bird.conf
 envsubst < /etc/supervisor/conf.d/supervisord.conf.template > /etc/supervisor/conf.d/supervisord.conf
 
 # 3. Hand off to Supervisor

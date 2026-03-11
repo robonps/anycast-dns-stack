@@ -34,7 +34,7 @@ RUN mkdir -p /etc/bird /etc/unbound /opt/adguardhome/conf /opt/adguardhome/work 
 
 # Copy configuration templates
 COPY config/unbound.conf /etc/unbound/unbound.conf
-COPY config/bird.conf /etc/bird/bird.conf.template
+COPY config/bird.conf /etc/bird/bird.conf.raw
 COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf.template
 COPY entrypoint.sh /entrypoint.sh
 
