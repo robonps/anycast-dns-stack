@@ -30,7 +30,13 @@ COPY --from=builder /go/bin/adguardhome-sync /usr/bin/adguardhome-sync
 RUN chmod +x /usr/bin/adguardhome-sync
 
 # Create directories for configs and data
-RUN mkdir -p /etc/bird /etc/unbound /opt/adguardhome/conf /opt/adguardhome/work /var/log/supervisor
+RUN mkdir -p /etc/bird /etc/unbound /opt/adguardhome/conf /opt/adguardhome/work /var/log/supervisor /var/lib/unbound
+
+
+RUN touch /var/lib/unbound/root.key && unbound-anchor -a /var/lib/unbound/root.key -v || true
+
+# Give unbound permissions to write to its root key file
+RUN chown -R unbound:unbound /var/lib/unbound
 
 # Copy configuration templates
 COPY config/unbound.conf /etc/unbound/unbound.conf
