@@ -1,66 +1,11 @@
 services:
-  network-init:
-    image: alpine
-    container_name: anycast-setup
+  anycast-dns:
+    build: .
+    container_name: anycast-dns-appliance
+    network_mode: "host"
     privileged: true
-    network_mode: "host"
-    restart: "no"
-    command: >
-      sh -c "ip link add anycast0 type dummy || true && 
-             ip addr add ${ANYCAST_IP}/32 dev anycast0 || true && 
-             ip link set anycast0 up"
-
-  unbound:
-    image: mvance/unbound:latest
-    container_name: dns-resolver
     restart: always
+    env_file: .env
     volumes:
-      - ./unbound:/opt/unbound/etc/unbound/
-    ports:
-      - "127.0.0.1:5335:53/udp"
-
-  adguard:
-    image: adguard/adguardhome:latest
-    container_name: dns-filter
-    restart: always
-    volumes:
-      - ./adguard/work:/opt/adguardhome/work
-      - ./adguard/conf:/opt/adguardhome/conf
-    ports:
-      - "${ANYCAST_IP}:53:53/udp"
-      - "${ANYCAST_IP}:53:53/tcp"
-      - "${NODE_IP}:3000:3000/tcp" 
-    depends_on:
-      - network-init
-      - unbound
-
-  bird:
-    image: pierky/bird
-    container_name: dns-advertiser
-    network_mode: "host"
-    restart: always
-    user: root
-    environment:
-      - IFACE=${IFACE}
-    volumes:
-      - ./bird:/etc/bird/
-    entrypoint: >
-      sh -c "sed 's/REPLACE_ME_NODE_IP/'$NODE_IP'/g; s/REPLACE_ME_IFACE/'$IFACE'/g' /etc/bird/bird.conf.template > /etc/bird/bird.conf && 
-             exec bird -d -c /etc/bird/bird.conf"
-    depends_on:
-      adguard:
-        condition: service_started
-
-  # Sync (Comment out on the MASTER node)
-  adguard-sync:
-    image: ghcr.io/bakito/adguardhome-sync:latest
-    container_name: dns-sync
-    restart: always
-    environment:
-      - ORIGIN_URL=${MASTER_IP}
-      - ORIGIN_USERNAME=${ADGUARD_USER}
-      - ORIGIN_PASSWORD=${ADGUARD_PASS}
-      - REPLICA_URL=http://${NODE_IP}:3000
-      - REPLICA_USERNAME=${ADGUARD_USER}
-      - REPLICA_PASSWORD=${ADGUARD_PASS}
-      - CRON=*/1 * * * *
+      - ./adguard-data:/opt/adguardhome/work
+      - ./adguard-conf:/opt/adguardhome/conf

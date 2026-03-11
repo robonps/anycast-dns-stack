@@ -1,4 +1,3 @@
 .env
-adguard/
-adguard_conf/
-unbound/root.key
+adguard-conf/
+adguard-data/
