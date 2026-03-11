@@ -4,7 +4,7 @@ services:
     container_name: anycast-dns-appliance
     network_mode: "host"
     privileged: true
-    restart: always
+    restart: unless-stopped
     env_file: .env
     volumes:
       - ./adguard-data:/opt/adguardhome/work
